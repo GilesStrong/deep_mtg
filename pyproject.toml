@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "my_repo"
+version = "0.1.0"
+description = ""
+authors = [
+    "Giles Strong <giles.c.strong@gmail.com>",
+]
+readme = "README.md"
+keywords = []
+include = ["py.typed"]
+
+[tool.poetry.dependencies]
+python = "~3.10"
+
+[tool.poetry.group.dev.dependencies]
+notebook = "^7.0.0"
+jupyter = "^1.0.0"
+traitlets = "5.9.0"
+ipykernel = "^6.29.5"
+pre-commit = "^3.6.1"
+flake8 = "^7.0.0"
+mypy = "^1.8.0"
+pytest-mock = "^3.12.0"
+flaky = "^3.7.0"
+pytest-lazy-fixture = "^0.6.3"
+isort = "^5.13.2"
+black = "^24.10.0"
+pytest = "<8.0.0"
+pandas-stubs = "^2.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
