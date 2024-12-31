@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
         - '.github/workflows/ci.yml'
-        - 'my_repo/**'
+        - 'deep_mtg/**'
         - 'poetry.lock'
 
 jobs:

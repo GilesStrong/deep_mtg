@@ -1,4 +1,4 @@
-# my_repo
+# deep_mtg
 
 ## Installation
 
@@ -20,3 +20,8 @@ poetry self add poetry-plugin-export
 poetry config warnings.export false
 poetry run pre-commit install
 ```
+
+
+## Data
+
+- rules [https://media.wizards.com/2024/downloads/MagicCompRules%2020241108.pdf]
