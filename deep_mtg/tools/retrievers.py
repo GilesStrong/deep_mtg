@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from typing import Optional, Type
 
@@ -62,7 +61,6 @@ class CardsRetriever(BaseTool):
             convertedManaCost: .convertedManaCost,
             keywords: .keywords,
             manaCost: .manaCost,
-            manaValue: .manaValue,
             name: .name,
             power: .power,
             rarity: .rarity,
@@ -93,9 +91,9 @@ class CardsRetriever(BaseTool):
             filtered_cards = []
             filtered_hashes = []
             for card in cards:
-                card_dict = json.loads(card.page_content)
-                if card_dict["name"] in ["Plains", "Island", "Swamp", "Mountain", "Forest"]:
-                    continue
+                # card_dict = json.loads(card.page_content)
+                # if card_dict["name"] in ["Plains", "Island", "Swamp", "Mountain", "Forest"]:
+                #     continue
                 if (h := hash(card.page_content)) not in filtered_hashes:
                     filtered_cards.append(card)
                     filtered_hashes.append(h)
