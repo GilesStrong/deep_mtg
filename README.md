@@ -25,3 +25,4 @@ poetry run pre-commit install
 ## Data
 
 - rules [https://media.wizards.com/2024/downloads/MagicCompRules%2020241108.pdf]
+- cards [https://mtgjson.com/downloads/all-sets/]

@@ -1,3 +1,3 @@
-from .rules_retriever import *  # noqa: F403
+from .retrievers import *  # noqa: F403
 
-__all__ = [*rules_retriever.__all__]  # type: ignore  # noqa: F405
+__all__ = [*retrievers.__all__]  # type: ignore  # noqa: F405
