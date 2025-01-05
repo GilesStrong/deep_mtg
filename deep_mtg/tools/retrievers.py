@@ -77,7 +77,7 @@ class CardsRetriever(BaseTool):
     """
     recreate_storage: bool = False
 
-    name: str = "SetsRetriever"
+    name: str = "CardsRetriever"
     description: str = "Provides relevant information for cards in Magic."
     args_schema: Type[BaseModel] = ScalableQuery
 
@@ -135,7 +135,9 @@ class CardsRetriever(BaseTool):
                 print(f"Creating summaries for {len(filtered_cards)} cards...")
                 for card in tqdm(filtered_cards):
                     summary = self.llm.invoke(self.summary_prompt.invoke({"card": card.page_content})).content
-
+                    # clean up the summary
+                    summary = summary.replace("\n", " ")
+                    summary = summary.replace('"', "")
                     card.page_content = '{"summary": "' + summary + '", ' + card.page_content[1:]  # type: ignore [operator]
 
                 self.card_vector_store.add_documents(documents=filtered_cards)
