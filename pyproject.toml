@@ -22,6 +22,7 @@ pypdf = "^5.1.0"
 tiktoken = "^0.8.0"
 torch = "^2.5.1"
 jq = "^1.8.0"
+tqdm = "^4.67.1"
 
 [tool.poetry.group.dev.dependencies]
 notebook = "^7.0.0"

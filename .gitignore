@@ -1,6 +1,7 @@
 *.db
 *.pdf
 *.json
+*.vec
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
