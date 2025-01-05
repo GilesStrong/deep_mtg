@@ -54,7 +54,7 @@ def test_cards_retriever(llm, embeddings) -> None:
     """
 
     memory = MemorySaver()
-    cards_retriever = CardsRetriever(sets_path=PKG_DIR / "../data/cards", embeddings=embeddings)
+    cards_retriever = CardsRetriever(sets_path=PKG_DIR / "../data/cards", embeddings=embeddings, llm=llm)
 
     cards_retriever.invoke({"query": "Sire of seven deaths", "k": 5, "score_threshold": 0.25})
 
