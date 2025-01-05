@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
-from langchain_ollama import ChatOllama
+from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
@@ -16,7 +16,12 @@ def llm() -> ChatOllama:
     return ChatOllama(model="llama3.1")
 
 
-def test_rules_retriever(llm) -> None:
+@pytest.fixture
+def embeddings() -> ChatOllama:
+    return OllamaEmbeddings(model="snowflake-arctic-embed2")
+
+
+def test_rules_retriever(llm, embeddings) -> None:
     """
     GIVEN: The rules retriever tool
     WHEN: A simple agent is created to interact with the tool
@@ -24,7 +29,7 @@ def test_rules_retriever(llm) -> None:
     """
 
     memory = MemorySaver()
-    rules_retriever = RulesRetriever(rules_path=PKG_DIR / "../data/MagicCompRules 20241108.pdf")
+    rules_retriever = RulesRetriever(rules_path=PKG_DIR / "../data/MagicCompRules 20241108.pdf", embeddings=embeddings)
 
     rules_retriever.invoke("In Magic The Gathering, how many cards must a standard constructed deck contain?")
 
@@ -41,7 +46,7 @@ def test_rules_retriever(llm) -> None:
         event["messages"][-1].pretty_print()
 
 
-def test_cards_retriever(llm) -> None:
+def test_cards_retriever(llm, embeddings) -> None:
     """
     GIVEN: The cards retriever tool
     WHEN: A simple agent is created to interact with the tool
@@ -49,7 +54,7 @@ def test_cards_retriever(llm) -> None:
     """
 
     memory = MemorySaver()
-    cards_retriever = CardsRetriever(sets_path=PKG_DIR / "../data/cards")
+    cards_retriever = CardsRetriever(sets_path=PKG_DIR / "../data/cards", embeddings=embeddings)
 
     cards_retriever.invoke({"query": "Sire of seven deaths", "k": 5, "score_threshold": 0.25})
 
