@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Optional, Type
 
@@ -28,23 +29,33 @@ class RulesRetriever(BaseTool):
     rules_path: Path
     embeddings: OllamaEmbeddings
     vector_store: None | InMemoryVectorStore = None
+    recreate_storage: bool = False
 
     name: str = "RulesRetriever"
     description: str = "Provides relevant information for the latest Magic: The Gathering rules, as of November 2024."
     args_schema: Type[BaseModel] = StrQuery
 
-    def __init__(self, rules_path: Path, embeddings: OllamaEmbeddings):
-        super().__init__(rules_path=rules_path, embeddings=embeddings)
+    def __init__(self, rules_path: Path, embeddings: OllamaEmbeddings, recreate_storage: bool = False):
+        super().__init__(rules_path=rules_path, embeddings=embeddings, recreate_storage=recreate_storage)
         self.create_storage()
 
     def create_storage(self) -> None:
-        self.vector_store = InMemoryVectorStore(self.embeddings)
-        loader = PyPDFLoader(str(self.rules_path))
-        docs = loader.load()
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, add_start_index=True)
-        all_splits = text_splitter.split_documents(docs)
-        print(f"Loaded {len(all_splits)} document splits.")
-        self.vector_store.add_documents(documents=all_splits)
+        if self.recreate_storage or not (self.rules_path.parent / "rules.vec").exists():
+            self.vector_store = InMemoryVectorStore(self.embeddings)
+            loader = PyPDFLoader(str(self.rules_path))
+            docs = loader.load()
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, add_start_index=True)
+            all_splits = text_splitter.split_documents(docs)
+            print(f"Loaded {len(all_splits)} document splits.")
+            self.vector_store.add_documents(documents=all_splits)
+            print(f"Dumping vectors to disk {self.rules_path.parent / 'rules.vec'}...")
+            self.vector_store.dump(str(self.rules_path.parent / "rules.vec"))
+
+        else:
+            print(f"Loading vectors from disk {self.rules_path.parent / 'rules.vec'}...")
+            self.vector_store = InMemoryVectorStore(self.embeddings).load(
+                str(self.rules_path.parent / "rules.vec"), self.embeddings
+            )
 
     def _run(self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> tuple[str, list]:
         """Retrieve information related to a query."""
@@ -77,7 +88,7 @@ class CardsRetriever(BaseTool):
     """
     recreate_storage: bool = False
 
-    name: str = "CardsRetriever"
+    name: str = "SetsRetriever"
     description: str = "Provides relevant information for cards in Magic."
     args_schema: Type[BaseModel] = ScalableQuery
 
@@ -97,7 +108,8 @@ class CardsRetriever(BaseTool):
                         "Include the name of the card in the summary."
                         "Include details of the card's role in that, strengths, and weaknesses."
                         "Include the mana colors of the card, along with the a qualitative description of the mana cost."
-                        "Do not return anything other than the summary of the card.",
+                        "Do not return anything other than the summary of the card."
+                        "Make sure to check that your summary accurately reflects the card.",
                     ),
                     ("user", "{card}"),
                 ]
@@ -134,22 +146,26 @@ class CardsRetriever(BaseTool):
                 # Create card summaries
                 print(f"Creating summaries for {len(filtered_cards)} cards...")
                 for card in tqdm(filtered_cards):
-                    summary = self.llm.invoke(self.summary_prompt.invoke({"card": card.page_content})).content
+                    card_dict = json.loads(card.page_content)
+                    if "land" in card_dict["types"]:
+                        summary = card_dict["text"]
+                    else:
+                        summary = self.llm.invoke(self.summary_prompt.invoke({"card": card.page_content})).content
                     # clean up the summary
                     summary = summary.replace("\n", " ")
                     summary = summary.replace('"', "")
-                    card.page_content = '{"summary": "' + summary + '", ' + card.page_content[1:]  # type: ignore [operator]
+                    card.page_content = '{"summary": "' + summary + '", ' + card.page_content[1:]
 
                 self.card_vector_store.add_documents(documents=filtered_cards)
                 print(f"Loaded {len(filtered_cards)} cards from set {s}.")
 
-            print(f"Dumping vectors to disk {self.sets_path / 'cards.vec'}")
+            print(f"Dumping vectors to disk {self.sets_path / 'cards.vec'}...")
             self.card_vector_store.dump(str(self.sets_path / "cards.vec"))
 
         else:
             print(f"Loading vectors from disk {self.sets_path / 'cards.vec'}...")
             self.card_vector_store = InMemoryVectorStore(self.embeddings).load(
-                path=str(self.sets_path / "cards.vec"), embedding=self.embeddings
+                str(self.sets_path / "cards.vec"), self.embeddings
             )
 
     def _run(

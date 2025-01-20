@@ -26,3 +26,10 @@ poetry run pre-commit install
 
 - rules [https://media.wizards.com/2024/downloads/MagicCompRules%2020241108.pdf]
 - cards [https://mtgjson.com/downloads/all-sets/]
+
+
+## TO DO:
+
+- Improve card summarisation
+- Add card-type filtering to searches
+- Add card test to card summary
