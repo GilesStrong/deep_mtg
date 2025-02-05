@@ -29,6 +29,7 @@ class DeckState(TypedDict):
     n_artifacts: Annotated[int, 0, "Number of artifacts in the deck"]
     n_other: Annotated[int, 0, "Number of other cards in the deck"]
     current_analysis: Annotated[str, "", "Expert analysis of the current strengths and weaknesses of the deck"]
+    name: Annotated[str, "", "Deck name"]
 
 
 class LandSelector(TypedDict):

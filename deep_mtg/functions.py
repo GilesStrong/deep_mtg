@@ -17,16 +17,19 @@ __all__ = [
     "get_deck_list",
     "add_card",
     "search_card",
+    "name_deck",
 ]
 
 
 def build_deck(deck_state: DeckState, llm: ChatOllama, cards_retriever: CardsRetriever) -> DeckState:
+    print("\n\n Beginning deck building process \n\n")
     deck_state = build_initial_manabase(deck_state, n=18, llm=llm)
     for _ in tqdm(range(60 - 24)):
         deck_state = add_card(deck_state, llm, cards_retriever)
     deck_state = build_final_manabase(deck_state, llm, cards_retriever)
     for _ in tqdm(range(60 - deck_state["n_cards"])):
         deck_state = add_card(deck_state, llm, cards_retriever)
+    deck_state = name_deck(deck_state, llm)
     return deck_state
 
 
@@ -88,6 +91,59 @@ def append_card(deck_state: DeckState, card: DeckCard, llm: Optional[ChatOllama]
     return deck_state
 
 
+def name_deck(deck_state: DeckState, llm: ChatOllama) -> DeckState:
+    deck_analysis_prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                "You are an expert Magic: The Gathering deck builder with a vivi imagination. "
+                "You are advising on building a high-competitative 60-card deck with a user-provided theme. "
+                "Given the current state of the deck, provide an appropriate, and inspiring name for the deck. "
+                "The name should reflect the theme of the deck, and the strategy that the deck is built around. "
+                "The name should be catchy and memorable, and should inspire confidence in the deck. "
+                "The name should be unique and not already used by another deck. "
+                "The name should be no more than 50 characters long. "
+                "The name shoudl strike fear into the hearts of your opponents, and inspire your allies. "
+                "You should only print the name of the deck and nothing else. ",
+            ),
+            (
+                "user",
+                "The deck theme is {prompt}. "
+                "The current deck consists of {n_cards} cards, {n_lands} lands, {n_creatures} creatures, and {n_other} other cards. "
+                "The cards present are:\n{deck}.\n "
+                "Please bestow a grand name upon this deck!. ",
+            ),
+        ]
+    )
+
+    name = llm.invoke(  # type: ignore [typeddict-item]
+        deck_analysis_prompt.invoke(
+            {
+                "prompt": deck_state["prompt"],
+                "n_cards": deck_state["n_cards"],
+                "n_lands": deck_state["n_lands"],
+                "n_creatures": deck_state["n_creatures"],
+                "n_other": deck_state["n_other"],
+                "deck": get_deck_list(deck_state)[1],
+            }
+        )
+    ).content
+    # clean up name
+    name = name.replace("\n", " ")
+    name = name.replace(":", "")
+    name = name.replace(";", "")
+    name = name.replace("*", "")
+    name = name.replace("/", "")
+    name = name.replace("\\", "")
+    name = name.replace("<think>", "")
+    name = name.replace(".", "")
+    name = name.replace("_", " ")
+    name = name.strip()
+
+    deck_state["name"] = name
+    return deck_state
+
+
 def build_initial_manabase(deck_state: DeckState, n: int, llm: ChatOllama) -> DeckState:
     land_selector_llm = llm.with_structured_output(LandSelector)
 
@@ -139,8 +195,9 @@ def build_initial_manabase(deck_state: DeckState, n: int, llm: ChatOllama) -> De
 
     response = None
     fails = 0
+    print("\n\n Building initial manabase \n\n")
     while response is None:
-        if fails > 5:
+        if fails >= 5:
             print("Failed to correctly output the initial manabase after 5 attempts, relaxing constraints")
             n_colors = 0
             while n_colors == 0:
@@ -182,10 +239,11 @@ def build_initial_manabase(deck_state: DeckState, n: int, llm: ChatOllama) -> De
                     response[f"n_{colors[i]}_{colors[j]}"] = n_duals  # type: ignore [literal-required]
             break
 
+        print(f"Attempt {fails + 1} \n")
         response = land_selector_llm.invoke(prompt_template.invoke({"prompt": deck_state["prompt"], "n_lands": n}))  # type: ignore [assignment]
         fails += 1
 
-    print("Initial manabase:", response)
+    print(f"\n\nInitial manabase:, {response}\n")
     for count in response:
         land = count[2:]
         for _ in range(response[count]):  # type: ignore [literal-required]
@@ -229,18 +287,22 @@ def build_final_manabase(deck_state: DeckState, llm: ChatOllama, card_retriever:
                 "The deck theme is {prompt}. "
                 "The current deck consists of {n_cards} cards, {n_lands} lands, {n_creatures} creatures, and {n_other} other cards. "
                 "The cards present are:\n{deck}.\n "
-                "Please suggest how many more lands should be added. ",
+                "In total, the deck currently contains {n_cards} cards, leaving {n_left} free slots. "
+                "Please suggest how many of these remaining slots should be lands. ",
             ),
         ]
     )
 
     n_remaining_lands = None
     fails = 0
+    print("\n\n Building final manabase \n\n")
     while n_remaining_lands is None:
-        if fails > 5:
+        if fails >= 5:
             print("Failed to correctly output the number of lands after 5 attempts, setting total lands to 24")
             n_remaining_lands = 24 - deck_state["n_lands"]
             break
+
+        print(f"Attempt {fails + 1} \n")
         response = n_lands_llm.invoke(
             n_lands_query_prompt_template.invoke(
                 {
@@ -250,6 +312,7 @@ def build_final_manabase(deck_state: DeckState, llm: ChatOllama, card_retriever:
                     "n_creatures": deck_state["n_creatures"],
                     "n_other": deck_state["n_other"],
                     "deck": get_deck_list(deck_state)[1],
+                    "n_left": 60 - deck_state["n_cards"],
                 }
             )
         )
@@ -258,8 +321,6 @@ def build_final_manabase(deck_state: DeckState, llm: ChatOllama, card_retriever:
         if n_remaining_lands < 0 or n_remaining_lands > 60 - deck_state["n_cards"]:
             n_remaining_lands = None
         fails += 1
-
-    print("Number of lands to add:", n_remaining_lands)
 
     land_query_prompt_template = ChatPromptTemplate.from_messages(
         [
@@ -306,6 +367,7 @@ def build_final_manabase(deck_state: DeckState, llm: ChatOllama, card_retriever:
         ]
     )
 
+    print(f"\n\nAdding {n_remaining_lands} lands to the deck:\n")
     for _ in tqdm(range(n_remaining_lands)):
         desired_card: str = llm.invoke(  # type: ignore [assignment]
             land_query_prompt_template.invoke(
@@ -320,7 +382,6 @@ def build_final_manabase(deck_state: DeckState, llm: ChatOllama, card_retriever:
                 }
             )
         ).content
-        print("Recommended card:", desired_card)
         card = search_card(deck_state, desired_card, llm, card_retriever)
         deck_state = append_card(deck_state, card, llm)
         n_remaining_lands -= 1
@@ -388,7 +449,7 @@ def get_deck_list(deck_state: DeckState) -> tuple[dict[str, dict[str, int]], str
 
     deck_str = ""
     for card_type, cards in deck_contents.items():
-        deck_str += f"\n## {card_type}: {type_counts[card_type]}"
+        deck_str += f"\n\n## {card_type}: {type_counts[card_type]}"
         for c, count in cards.items():
             deck_str += f"\n- {count} x {c}"
     deck_str += "\n"
@@ -405,6 +466,7 @@ def add_card(deck_state: DeckState, llm: ChatOllama, cards_retriever: CardsRetri
 
     deck_contents, deck_str = get_deck_list(deck_state)
     print("Current deck:", deck_str)
+    print("\nCurrent analysis:", deck_state["current_analysis"])
 
     card_advisor_prompt = ChatPromptTemplate.from_messages(
         [
@@ -495,8 +557,10 @@ def search_card(deck_state: DeckState, desired_card: str, llm: ChatOllama, cards
         k += max(1, 5 - len(matching_cards))
 
     matching_cards_dicts = [json.loads(c) for c in matching_cards]  # recreate in case of filtering
-    matching_cards_str = "\n".join([f'index {i}: {c["summary"]}' for i, c in enumerate(matching_cards_dicts)])
-    print("Matching cards:", matching_cards_str)
+    matching_cards_str = "".join([f'\n\nindex {i}: {c["summary"]}' for i, c in enumerate(matching_cards_dicts)])
+
+    print(f"Searching for card: {desired_card}")
+    print(f"Found these possible matches: {matching_cards_str}")
 
     card_selector_prompt = ChatPromptTemplate.from_messages(
         [
@@ -544,11 +608,14 @@ def search_card(deck_state: DeckState, desired_card: str, llm: ChatOllama, cards
     selector_response: dict | None = None
     card_index = None
     fails = 0
+    print(f"\nSelecting card from {len(matching_cards)} possible matches")
     while selector_response is None:
-        if fails > 5:
+        if fails >= 5:
             print("Failed to correctly select a card after 5 attempts, selecting the zeroth card")
             card_index = 0
             break
+
+        print(f"Attempt {fails + 1}")
         selector_response = card_selector_llm.invoke(  # type: ignore [assignment]
             card_selector_prompt.invoke(
                 {
