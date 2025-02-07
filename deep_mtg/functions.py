@@ -197,7 +197,7 @@ def build_initial_manabase(deck_state: DeckState, n: int, llm: ChatOllama) -> De
     fails = 0
     print("\n\n Building initial manabase \n\n")
     while response is None:
-        if fails >= 5:
+        if fails >= 0:  # For now, use the backup mana generation method. The primary method is not working properly
             print("Failed to correctly output the initial manabase after 5 attempts, relaxing constraints")
             n_colors = 0
             while n_colors == 0:
