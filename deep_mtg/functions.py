@@ -140,7 +140,7 @@ def name_deck(deck_state: DeckState, llm: ChatOllama) -> DeckState:
     name = name.replace("_", " ")
     name = name.strip()
 
-    deck_state["name"] = name
+    deck_state["name"] = name[:50]
     return deck_state
 
 
@@ -549,14 +549,14 @@ def search_card(deck_state: DeckState, desired_card: str, llm: ChatOllama, cards
     matching_cards: list[str] = []
     while len(matching_cards) < 5:
         matching_cards = cards_retriever.invoke({"query": desired_card, "k": k})
-        matching_cards_dicts = [json.loads(c) for c in matching_cards]
+        matching_cards_dicts = [json.loads(c, strict=False) for c in matching_cards]
         # filter out cards that are already in the deck 4 times
         matching_cards = [
             c for i, c in enumerate(matching_cards) if f'4 x {matching_cards_dicts[i]["name"]}' not in deck_str
         ]
         k += max(1, 5 - len(matching_cards))
 
-    matching_cards_dicts = [json.loads(c) for c in matching_cards]  # recreate in case of filtering
+    matching_cards_dicts = [json.loads(c, strict=False) for c in matching_cards]  # recreate in case of filtering
     matching_cards_str = "".join([f'\n\nindex {i}: {c["summary"]}' for i, c in enumerate(matching_cards_dicts)])
 
     print(f"Searching for card: {desired_card}")
@@ -631,8 +631,12 @@ def search_card(deck_state: DeckState, desired_card: str, llm: ChatOllama, cards
                 }
             )
         )
-        if selector_response is not None and selector_response["index"] > len(matching_cards):
+        try:
+            if selector_response is not None and selector_response["index"] > len(matching_cards):
+                selector_response = None
+        except (KeyError, TypeError):
             selector_response = None
+
         fails += 1
     if card_index is None:
         card_index = selector_response["index"]
@@ -641,7 +645,7 @@ def search_card(deck_state: DeckState, desired_card: str, llm: ChatOllama, cards
     card = matching_cards[card_index]
     print("Matching card:", card)
 
-    card_dict = json.loads(card)
+    card_dict = json.loads(card, strict=False)
     return DeckCard(
         name=card_dict["name"],
         types=card_dict["types"],

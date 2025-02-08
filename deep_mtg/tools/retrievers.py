@@ -124,12 +124,13 @@ class CardsRetriever(BaseTool):
         )
         self.create_storage()
 
-    def create_storage(self) -> None:
-        if self.recreate_storage or not (self.sets_path / "cards.vec").exists():
-            self.card_vector_store = InMemoryVectorStore(self.embeddings)
-            for s in self.sets_path.glob("*.json"):
-                print(f"Loading {s}...")
-                loader = JSONLoader(s, self.extraction_schema, text_content=False)
+    def create_embeddings(self) -> None:
+        print(f"Creating embeddings for all cards in {self.sets_path}...")
+        for json_path in tqdm(list(self.sets_path.glob("*.json"))):
+            vec_path = json_path.with_suffix(".vec")
+            if self.recreate_storage or not vec_path.exists():
+                print(f"Embedding {json_path}...")
+                loader = JSONLoader(json_path, self.extraction_schema, text_content=False)
                 cards = loader.load()
 
                 # Remove duplicates and basic lands
@@ -152,21 +153,40 @@ class CardsRetriever(BaseTool):
                     else:
                         summary = self.llm.invoke(self.summary_prompt.invoke({"card": card.page_content})).content
                     # clean up the summary
+                    if "</think>" in summary:
+                        summary = summary[summary.rfind("</think>") + 8 :]
                     summary = summary.replace("\n", " ")
                     summary = summary.replace('"', "")
+                    summary = summary.replace("\\", " ")
+                    summary = summary.replace("\\\\", "")
+                    summary = summary.replace("\\n", " ")
+                    summary = summary.strip()
                     card.page_content = '{"summary": "' + summary + '", ' + card.page_content[1:]
 
-                self.card_vector_store.add_documents(documents=filtered_cards)
-                print(f"Loaded {len(filtered_cards)} cards from set {s}.")
+                tmp_vector_store = InMemoryVectorStore(self.embeddings)
+                tmp_vector_store.add_documents(documents=filtered_cards)
+                print(f"Embedded {len(filtered_cards)} cards from set {json_path}.")
 
-            print(f"Dumping vectors to disk {self.sets_path / 'cards.vec'}...")
-            self.card_vector_store.dump(str(self.sets_path / "cards.vec"))
+                print(f"Dumping vectors to disk {vec_path}...")
+                tmp_vector_store.dump(str(vec_path))
 
-        else:
-            print(f"Loading vectors from disk {self.sets_path / 'cards.vec'}...")
-            self.card_vector_store = InMemoryVectorStore(self.embeddings).load(
-                str(self.sets_path / "cards.vec"), self.embeddings
-            )
+        vec_data = {}
+        for vec_path in self.sets_path.glob("*.vec"):
+            if vec_path.name == "all_cards.vec":
+                continue
+            print(f"Loading {vec_path}...")
+            with open(vec_path, "r") as f:
+                tmp_data = json.load(f)
+            vec_data.update(tmp_data)
+        with open(self.sets_path / "all_cards.vec", "w") as f:
+            json.dump(vec_data, f)
+
+    def create_storage(self) -> None:
+        self.create_embeddings()
+        self.card_vector_store = InMemoryVectorStore(self.embeddings).load(
+            str(self.sets_path / "all_cards.vec"), self.embeddings
+        )
+        print(f"Loaded {len(self.card_vector_store.store)} cards from all sets.")
 
     def _run(
         self, query: str, k: int, score_threshold: float = 0.0, run_manager: Optional[CallbackManagerForToolRun] = None
@@ -175,5 +195,15 @@ class CardsRetriever(BaseTool):
         retrieved_cards = self.card_vector_store.similarity_search_with_score(query, k=k)
         if k <= 2:
             score_threshold = 0.0
-        filtered_cards = [card[0].page_content for card in retrieved_cards if card[1] > score_threshold]
+
+        filtered_cards = []
+        for card in retrieved_cards:
+            if card[1] < score_threshold:
+                continue
+            c = card[0].page_content
+            c = c.replace("\\\\", "")
+            c = c.replace("\\n", " ")
+            c.replace("\n", " ")
+            filtered_cards.append(c)
+
         return filtered_cards

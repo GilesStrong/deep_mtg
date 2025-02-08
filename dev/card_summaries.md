@@ -65,6 +65,11 @@ This Human Wizard has 2 power and 2 toughness, making it a weak combatant
 Its key ability allows you to return an opponent's creature back to their hand when Exclusion Mage enters the battlefield, which can be very useful for clearing threats or creating favorable board states
 However, its low stats mean that it is vulnerable in direct combat and might not survive trades.
 
+R1 6
+**Exclusion Mage**: A blue Human Wizard with a converted mana cost of 3 ({2}{U})
+When it enters, you can target one of your opponent’s creatures and return it to their hand
+This card is strong in control decks as it disrupts the opponent's board presence, but its moderate cost and low body make it somewhat fragile against aggressive strategies.
+
 llama3.1 -1
 Savannah Lions is a strong, low-cost creature that deals 2 damage and has 1 toughness
 Its single white mana cost is relatively weak, but its power makes up for it, making it a good addition to a white-based deck.
@@ -119,6 +124,13 @@ Savannah Lions is a white creature with a weak mana cost of just {W}
 It's a 2/1 Cat that lacks any keywords
 Despite its low cost and decent power for its mana investment, it's quite fragile due to its low toughness, making it susceptible to removal or trading in combat
 Its strength lies in its ability to deal early damage efficiently, but its weakness is its vulnerability to being removed from the game quickly.
+
+R1 8
+**Savannah Lions**: A white Cat creature with a mana cost of {W}, costing 1 converted mana
+It has power 2 and toughness 1
+This card is strong in the early game due to its low cost and ability to establish board presence quickly
+However, it's weak because its small stats make it vulnerable to removal
+As a Cat, it can fit into strategies involving synergy with other Cats but lacks any special abilities beyond its basic stats.
 
 llama3.1  7
 Banner of Kinship is a strong artifact that enhances your creatures based on their type
@@ -218,6 +230,13 @@ This card allows you to choose a creature type when it enters the battlefield an
 The number of counters is determined by how many creatures of the selected type you control at the time of casting
 It's strong in decks with a variety of creatures of the same type, but its effectiveness relies heavily on having multiple creatures of the designated type on the battlefield beforehand.
 
+R1 9
+**Banner of Kinship**  - **Mana Cost:** {5} (moderate) - **Type:** Artifact - **Effect:** When played, choose a creature type and place a fellowship counter for each creature of that type you control
+Creatures of the chosen type gain +1/+1 per counter on Banner
+- **Strengths:** Boosts creatures of a selected type significantly; versatile and accessible as it's colorless
+- **Weaknesses:** Vulnerable to artifact removal; effectiveness depends on having enough creatures of the chosen type
+- **Role:** Mid-game card, useful for creature-based decks looking to enhance their strategy
+ This artifact is powerful in creature-focused decks, offering conditional boosts that can significantly strengthen your forces if utilized effectively.
 
 llama3.1 6
 Zetalpa, Primal Dawn is a strong and aggressive white creature with flying and double strike abilities
@@ -290,6 +309,11 @@ Zetalpa, Primal Dawn is a legendary white creature with high mana cost, requirin
 It's a strong Elder Dinosaur with impressive abilities including flying, double strike, vigilance, trample, and indestructible
 Its power/toughness of 4/8 makes it resilient in combat, but its significant mana requirement means it takes time to cast
 The combination of these powerful keyword abilities makes Zetalpa a formidable force on the battlefield once summoned.
+
+R1 7
+**Zetalpa, Primal Dawn** is a **Legendary Elder Dinosaur Creature** with flying, double strike, vigilance, trample, and indestructible abilities
+It costs **{6}{W}{W}** (high mana cost), has a power of 4, and toughness of 8, making it a strong, durable attacker that can deal significant damage each turn due to its multiple abilities
+Its indestructibility makes it hard to remove, but the high mana cost means you'll need time to cast it.
 
 llama3.1  4 
 Etali, Primal Storm is a strong, aggressive creature that sees play in red decks
@@ -376,6 +400,12 @@ The primary strength of Etali lies in its ability to exile the top cards from ea
 However, this effect could potentially give your opponent powerful cards as well
 The high mana cost makes it a late-game play and requires significant red mana to cast.
 
+R1 8
+**Etali, Primal Storm** is a **red**, **Legendary Elder Dinosaur Creature** with a **moderate mana cost** ({4}{R}{R})
+When it attacks, you exile the top card of each player's library and may cast any number of spells from those cards without paying their mana costs
+This makes it a **strong**, disruptive card that can provide significant advantage in later turns
+Its **weakness** is its size and color dependency, making it vulnerable to removal effects and requiring red mana to cast.
+
 llama3.1 6
 The Leonin Skyhunter is a moderate-strength flying creature that costs two mana in white
 It's a decent addition to any white-based deck, offering some board presence and pressure without being too expensive or demanding
@@ -421,6 +451,11 @@ As a Cat Knight with flying, it is capable of dealing damage over ground-based b
 Its balanced power and toughness allow it to contribute to both offense and defense effectively
 However, its double white mana requirement might limit its use in multicolor decks with a focus on mana flexibility.
 {"colors": ["W"], "convertedManaCost": 2, "keywords": ["Flying"], "manaCost": "{W}{W}", "name": "Leonin Skyhunter", "power": "2", "rarity": "uncommon", "subtypes": ["Cat", "Knight"], "supertypes": [], "text": "Flying", "toughness": "2", "types": ["Creature"]}
+
+R1  4
+**Leonin Skyhunter**: A 2/2 Cat Knight creature with flying, costing {W}{W}
+Efficient early game flyer, strong for evasion but weak against targeted removal
+White-aligned.
 
 llama3.1 7
 Mischievous Pup is a strong, aggressive White creature
@@ -497,6 +532,15 @@ Its main strength lies in its enters-the-battlefield ability, which lets you ret
 This can be useful for drawing cards, regenerating mana, or repositioning creatures strategically
 However, Mischievous Pup is quite weak defensively and could be a target for removal spells due to its low toughness.
 
+R1 9
+**Mischievous Pup** is a white creature with Flash
+It costs {2}{W} (moderate)
+When it enters the battlefield, you can return up to one other target permanent you control to its owner's hand
+It has low power/toughness (3/1), making it fragile
+Strengths include its Flash ability and its effect of returning a permanent, which offers flexibility and potential card advantage
+Weaknesses are its vulnerability to removal spells due to its low stats
+It fits in decks valuing recursion or control, using white mana efficiently.
+
 llama3.1 3
 Meteor Golem is a strong artifact creature
 Its mana cost of 7 black is moderate to high and requires significant investment in the color
@@ -550,6 +594,11 @@ Meteor Golem is a colorless Artifact Creature with a heavy mana cost of {7}
 It has average stats for its cost, with 3 power and 3 toughness
 Its main strength lies in its entrance ability: when Meteor Golem enters the battlefield, it allows you to destroy any nonland permanent controlled by an opponent, which can be very impactful
 The downside is that due to its high mana cost, it requires significant resources to cast.
+
+R1 8 
+**Meteor Golem**: An artifact creature with a high mana cost of 7, requiring significant resources to cast
+It offers board disruption by destroying a non-land permanent upon entering play, making it valuable in control-oriented decks
+Despite its useful ability, its average stats for the cost and vulnerability as an artifact (targetable by removal spells) are notable weaknesses.
 
 llama3.1 6
 Rite of the Dragoncaller is an enchantment from red that's very strong and aggressive
@@ -629,6 +678,13 @@ This card enables you to create a 5/5 red Dragon creature token with flying ever
 Its effect can quickly overwhelm your opponent with flyers, making it especially strong in decks that generate many instants or sorceries
 However, its high mana cost and reliance on casting other spells make it weak against strategies that can disrupt your hand or limit your ability to cast multiple spells.
 
+R1 9 
+**Rite of the Dragoncaller** is a red enchantment with a moderate mana cost ({4}{R}{R}) that provides a powerful payoff
+It creates a 5/5 red Dragon creature token with flying whenever you cast an instant or sorcery spell
+This card excels in decks that rely on casting spells frequently, offering a strong and versatile creature each time it triggers
+However, its reliance on spellcasting can make it slow to activate, and the dragon tokens are vulnerable to removal if your opponent targets them
+Overall, it's a game-changing enchantment for red strategies.
+
 llama3.1 3
 Suspicious Shambler is a strong creature that costs three black mana and an additional black mana, making it moderately expensive to play
 As a zombie, it has a moderate power and toughness of 4/2
@@ -688,3 +744,9 @@ Suspicious Shambler is a black Zombie with a moderate mana cost of {3}{B}
 It has decent stats, being a 4/2, which makes it a strong creature for its cost
 The card's main feature is its graveyard-activated ability that lets you create two 2/2 Zombie tokens by paying {4}{B}{B} and exiling the Shambler from your graveyard
 This ability can be very powerful in black decks focused on reanimating creatures or utilizing graveyards, but it requires a significant investment of resources and mana to activate, making it a weak link if you cannot afford to use its full potential.
+
+R1 6
+**Suspicious Shambler**   A black Zombie creature with power 4 and toughness 2
+It costs {3}{B} to cast
+Once exiled from your graveyard as a sorcery, it creates two 2/2 black Zombie tokens
+Strong in late-game token generation but weak due to its high mana cost and color commitment.
