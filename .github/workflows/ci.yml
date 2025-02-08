@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10.12"
+          python-version: "3.12"
       - name: Install Dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
@@ -37,7 +37,7 @@ jobs:
   #     - uses: actions/checkout@v3
   #     - uses: actions/setup-python@v4
   #       with:
-  #         python-version: "3.10.12"
+  #         python-version: "3.12"
   #     - name: Install Dependencies
   #       run: |
   #         curl -sSL https://install.python-poetry.org | python3 -
