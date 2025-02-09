@@ -1,4 +1,4 @@
-# deep_mtg
+# DeepMTG: Building 'Magic: The Gathering' decks using LLM chains.
 
 ## Installation
 
@@ -37,7 +37,7 @@ Download these and place them in the `data` directory:
 
 - rules [https://media.wizards.com/2024/downloads/MagicCompRules%2020241108.pdf]
 
-Download the `.json` files and place them in the `data/cards` directory:
+Download the desrired `.json` files and place them in the `data/cards` directory:
 
 - cards [https://mtgjson.com/downloads/all-sets/]
 
