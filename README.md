@@ -1,5 +1,7 @@
 # DeepMTG: Building 'Magic: The Gathering' decks using LLM chains.
 
+See [this blog-post](https://gilesstrong.github.io/website/ai/llms/nlp/fun/2025/02/17/Making-Magic.html) for more information
+
 ## Installation
 
 For development usage, we use [`poetry`](https://python-poetry.org/docs/#installing-with-the-official-installer) to handle dependency installation.
