@@ -2,6 +2,8 @@
 
 See [this blog-post](https://gilesstrong.github.io/website/ai/llms/nlp/fun/2025/02/17/Making-Magic.html) for more information
 
+As of 2026, this repo has been superseded by [Deep MTG 2](https://github.com/GilesStrong/deep_mtg_2), and is no longer maintained.
+
 ## Installation
 
 For development usage, we use [`poetry`](https://python-poetry.org/docs/#installing-with-the-official-installer) to handle dependency installation.
